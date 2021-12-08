@@ -30,7 +30,6 @@ if __name__ == "__main__":
 
         vents = [parse_line(line) for line in input]
         valid_vents = [v for v in vents if v.x1 == v.x2 or v.y1 == v.y2]
-        diagonal_vents = [v for v in vents if v.x1 != v.x2 and v.y1 != v.y2]
 
         vent_fields_on_map = defaultdict(lambda: 0)
 
@@ -38,15 +37,25 @@ if __name__ == "__main__":
             if vent.x1 == vent.x2:
                 start = min(vent.y1, vent.y2)
                 end = max(vent.y1, vent.y2)
-                for y in range(start, end+1):
+                for y in range(start, end + 1):
                     key = f'{vent.x1},{y}'
                     vent_fields_on_map[key] += 1
             if vent.y1 == vent.y2:
                 start = min(vent.x1, vent.x2)
                 end = max(vent.x1, vent.x2)
-                for x in range(start, end+1):
+                for x in range(start, end + 1):
                     key = f'{x},{vent.y1}'
                     vent_fields_on_map[key] += 1
+
+        diagonal_vents = [v for v in vents if v.x1 != v.x2 and v.y1 != v.y2]
+        for vent in diagonal_vents:
+            dir1 = 1 if vent.x1 < vent.x2 else -1  # delta for moving along x axis
+            dir2 = 1 if vent.y1 < vent.y2 else -1  # delta for moving along y axis
+            xrange = range(vent.x1, vent.x2 + dir1, dir1)
+            yrange = range(vent.y1, vent.y2 + dir2, dir2)
+            for x, y in zip(xrange, yrange):
+                key = f'{x},{y}'
+                vent_fields_on_map[key] += 1
 
         dangers = [pos for pos, count in vent_fields_on_map.items() if count > 1]
         print(f"{len(dangers)=}")
